@@ -63,6 +63,7 @@ class Signup extends React.Component {
         auth.createUserWithEmailAndPassword(this.state.email, this.state.password)
             .then((res) => {
                 db.ref().child(this.state.category).child(res.user.uid).child('personal Information').set(obj)
+                db.ref().child('user').child(res.user.uid).child('personal Information').set(obj)
                 auth.signOut().then(() => {
                     this.props.history.push('/')
                 })

@@ -8,53 +8,76 @@ class SignIn extends React.Component {
     constructor() {
         super()
         this.state = {
-            email: "",
-            password: "",
-            category: "select",
-            user: false
+          email: "",
+          password: "",
+          category: "select",
+          user: "",
+          drawer: false
+    
         }
-    }
-    signIn = (event) => {
+      }
+      signIn = (event) => {
         event.preventDefault()
-
+        console.log(this.props)
+    
         auth.signInWithEmailAndPassword(this.state.email, this.state.password)
-            .then((res) => {
-                console.log("hi");
-                db.ref().child(this.state.category).child(res.user.uid).child('personal Information').on('value', (snap) => {
-                    var data = snap.val();
-                    if (this.state.category === data.category) {
-                        this.props.history.push('/darwer')
-                    } else {
-                        message.error('please select correct category')
-                    }
-                })
-
+          .then((res) => {
+            //    var data = [this.state.category];
+            //    for(var i = 0; i < data.length; i++){
+            //        db.ref().child(data[i]).on((snap)=>{
+            //             var info = Object.keys(snap.val())
+            //             for(var j = 0 ; j < info.length; j++){
+            //                 if(res.user.uid === info[j]){
+            //                     console.log(info[j])
+            //                 }
+            //             }
+            //        })
+            //    }
+    
+            db.ref().child('user').child(res.user.uid).child('personal Information').on('value', (snap) => {
+              var data = snap.val();
+              this.setState({
+                user: data.category,
+                drawer: true
+              }, () => {
+                console.log(this.state.user)
+                this.props.history.push('/darwer')
+    
+              })
+              // db.ref().child(data.category).child(res.user.uid).on
+              // if (this.state.category === data.category) {
+              // }
+              // else {
+              //   message.error('please select correct category')
+              // }
             })
-            .catch(function (error) {
-                var errorCode = error.code;
-                var errorMessage = error.message;
-                message.error(errorMessage)
-            })
-    }
-    data = (ev, val) => {
+    
+          })
+          .catch(function (error) {
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            message.error(errorMessage)
+    
+          })
+      }
+      data = (ev, val) => {
         // ev.preventDefault()
         if (val === "email") {
-            this.setState({
-                email: ev.target.value
-            })
+          this.setState({
+            email: ev.target.value
+          })
         } else if (val === "pass") {
-            this.setState({
-                password: ev.target.value
-            })
+          this.setState({
+            password: ev.target.value
+          })
         } else if (val === "categry") {
-            this.setState({
-                category: ev
-            })
+          this.setState({
+            category: ev
+          })
         }
-    }
-
-    render() {
-        console.log(this.props)
+      }
+        render() {
+        // console.log(this.props)
         const { Option } = Select
         // const formItemLayout = {
         //     labelCol: {

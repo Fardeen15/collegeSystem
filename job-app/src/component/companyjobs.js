@@ -1,6 +1,6 @@
 import React from 'react'
 import { auth, db } from '../firabaseConfig';
-import { Comment, Avatar, Tooltip,BackTop } from 'antd';
+import { Comment, Avatar, Tooltip,BackTop, Button , Modal } from 'antd';
 
 class CompanyJobs extends React.Component {
     constructor() {
@@ -40,16 +40,40 @@ class CompanyJobs extends React.Component {
             }
         })
     }
+    info = (value) => {
+        console.log(value)
+        Modal.info({
+            title: ' Job information',
+            content: (
+                <div>
+                    <h1>Ali</h1>
+                    <h3>Company information</h3><hr/>
+                   <p><b>Company Name</b> : {value.companyname}</p>
+                   <p><b>Company Email</b> : {value.companyemail}</p>
+                   <p><b>Company website</b> : {value.companywebsite}</p>
+                   <h3>Job requirement</h3><hr/>
+                   <p><b>job Categroy</b> : {value.jobCategroy}</p>
+                   <p><b>Timing</b> : {value.jobType}</p>
+                   <hr/>
+                   Contact us : {value.number}
+                </div>
+
+            ),
+            onOk() { },
+        });
+    }
+
     render() {
         return (
             <div style={{ overflowY: "scroll", height: "90vh" }}>
                 <h1>Company Jobs</h1>
-                {this.state.data ?
+                {this.state.data.length ?
                     this.state.data.map((value, index) => {
                         return (
                             <Comment
+                            
                                 key={index}
-                                // actions={actions}
+                                actions={<Button onClick = {this.info}>Show Detail</Button>}
                                 author={value.name}
                                 avatar={
                                     <Avatar
@@ -57,7 +81,9 @@ class CompanyJobs extends React.Component {
                                     >{value.name[0]}</Avatar>
                                 }
                                 content={
-                                    <p>{value.job}</p>
+                                    <div>
+                                    <p>{value.Description}</p><Button onClick = {()=>this.info(value)}>Show Detail</Button>
+                                </div>
                                 }
                                 datetime={
                                     <Tooltip >
@@ -68,7 +94,9 @@ class CompanyJobs extends React.Component {
 
                         )
                     })
-                    : null}
+                    : <p>
+                        no job yet
+                    </p>}
                     
                     <BackTop>
                         <div className="ant-back-top-inner">UP</div>

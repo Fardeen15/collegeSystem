@@ -5,7 +5,7 @@ import { Layout, Menu, Breadcrumb, Button } from 'antd';
 import StudentsData from './studentsData';
 import CompanyJobs from './companyjobs';
 import PostingForm from './postingForm';
-import {withRouter} from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 
 import { Drawer, List, Avatar, Divider, Col, Row } from 'antd';
 const pStyle = {
@@ -86,7 +86,7 @@ class Navbar extends React.Component {
     componentWillMount() {
         auth.onAuthStateChanged((user) => {
             if (user) {
-                db.ref().child('Company').child(user.uid).child('personal Information').on('value', (snap) => {
+                db.ref().child('user').child(user.uid).child('personal Information').on('value', (snap) => {
                     var data = snap.val()
                     // console.log(data)
                     this.setState({
@@ -96,8 +96,8 @@ class Navbar extends React.Component {
             }
         })
     }
-    signout = ()=>{
-        auth.signOut().then(()=>this.props.history.push('/'))
+    signout = () => {
+        auth.signOut().then(() => this.props.history.push('/'))
     }
     render() {
         const { Header, Content, Footer } = Layout;
@@ -106,33 +106,37 @@ class Navbar extends React.Component {
             <div>
 
                 <Header style={{ position: 'fixed', zIndex: 1, width: '100%' }}>
-                    <div className="logo" ><Avatar onClick={this.showDrawer} size="large">{this.state.value ? this.state.value.name[0] : null}</Avatar></div>
+                    <div className="logo" ><Avatar  onClick={this.showDrawer} size="large">{this.state.value ? this.state.value.name[0] : null}</Avatar></div>
                     <Menu
                         theme="dark"
                         mode="horizontal"
                         defaultSelectedKeys={['1']}
                         style={{ lineHeight: '64px' }}
                     >
-                        <Menu.Item onClick={() => { this.navcheck('student') }} key="1">Students Data</Menu.Item>
-                        <Menu.Item onClick={() => { this.navcheck('company') }} key="2">Jobs</Menu.Item>
+                        {this.state.value.category === "Company" ?
+                            <Menu.Item onClick={() => { this.navcheck('student') }} key="1">Students Data</Menu.Item>
+                            :
+                            <Menu.Item onClick={() => { this.navcheck('company') }} key="2">Jobs</Menu.Item>
+                        }
                         <Menu.Item onClick={() => { this.navcheck('form') }} key="3">Posting Form</Menu.Item>
                         {/* <Menu.Item key="3">nav 3</Menu.Item> */}
 
                     </Menu>
                     <Content>
-                        {this.state.student ?
+                        {this.state.student && this.state.value.category === "Company"  ?
                             // console.log(true)
                             <StudentsData />
                             : null}
-                        {this.state.company ?
+                        {this.state.company && this.state.value.category === "student"?
                             <CompanyJobs />
                             : null}
                         {this.state.form ?
-                            <PostingForm />
+                            <PostingForm category = {this.state.value ? this.state.value.category : null} />
                             : null}
                     </Content>
                 </Header>
                 <Drawer
+                
                     width={640}
                     placement="right"
                     closable={false}
