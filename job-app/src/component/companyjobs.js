@@ -82,7 +82,7 @@ class CompanyJobs extends React.Component {
                                 }
                                 content={
                                     <div>
-                                    <p>{value.Description}</p><Button onClick = {()=>this.info(value)}>Show Detail</Button>
+                                    <p>{value.Description}  <Button type="danger" onClick = {()=>this.info(value)}>Show Detail</Button></p>
                                 </div>
                                 }
                                 datetime={

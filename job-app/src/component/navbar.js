@@ -8,6 +8,8 @@ import PostingForm from './postingForm';
 import { withRouter } from 'react-router-dom'
 
 import { Drawer, List, Avatar, Divider, Col, Row } from 'antd';
+import PostingJobs from './yourJobs';
+import PostingData from './yourdata';
 const pStyle = {
     fontSize: 16,
     color: 'rgba(0,0,0,0.85)',
@@ -46,7 +48,12 @@ class Navbar extends React.Component {
             visible: false,
             student: true,
             company: false,
-            form: false
+            PostingJobs: false,
+            edit : false,
+            form: false,
+            edit2 : false,
+            PostingData : false, 
+            data: []
         }
     }
     navcheck = (value) => {
@@ -55,23 +62,66 @@ class Navbar extends React.Component {
             this.setState({
                 student: true,
                 company: false,
+                PostingJobs: false,
+                PostingData : false,
                 form: false
             })
         } else if (value === "company") {
             this.setState({
                 student: false,
                 company: true,
+                PostingJobs: false,
+                PostingData : false,
+                form: false
+            })
+        } else if (value === "Jobs") {
+            this.setState({
+                student: false,
+                company: false,
+                PostingJobs: true,
+                PostingData : false,
+                form: false
+            })
+        } else if (value === "data") {
+            this.setState({
+                student: false,
+                company: false,
+                PostingJobs: false,
+                PostingData : true,
                 form: false
             })
         } else if (value === "form") {
             this.setState({
                 student: false,
                 company: false,
+                PostingJobs: false,
+                PostingData : false,
                 form: true
             })
         }
     }
-
+    edit2 = (value, index) => {
+        this.setState({
+            data: value,
+            index: index,
+            edit2 : true,
+            student: false,
+            company: false,
+            PostingData: false,
+            form: true
+        })
+    }
+    edit = (value, index) => {
+        this.setState({
+            data: value,
+            index: index,
+            edit : true,
+            student: false,
+            company: false,
+            PostingJobs: false,
+            form: true
+        })
+    }
     showDrawer = () => {
         this.setState({
             visible: true,
@@ -106,7 +156,7 @@ class Navbar extends React.Component {
             <div>
 
                 <Header style={{ position: 'fixed', zIndex: 1, width: '100%' }}>
-                    <div className="logo" ><Avatar  onClick={this.showDrawer} size="large">{this.state.value ? this.state.value.name[0] : null}</Avatar></div>
+                    <div className="logo" ><Avatar onClick={this.showDrawer} size="large">{this.state.value ? this.state.value.name[0] : null}</Avatar></div>
                     <Menu
                         theme="dark"
                         mode="horizontal"
@@ -118,25 +168,42 @@ class Navbar extends React.Component {
                             :
                             <Menu.Item onClick={() => { this.navcheck('company') }} key="2">Jobs</Menu.Item>
                         }
+                        {this.state.value.category === "student" ?
+                            <Menu.Item key="1a" onClick={() => { this.navcheck('data') }}>Your posted Data</Menu.Item>
+
+                            :
+                            <Menu.Item key="2a" onClick={() => { this.navcheck('Jobs') }}>Your posted jobs</Menu.Item>
+                        }
                         <Menu.Item onClick={() => { this.navcheck('form') }} key="3">Posting Form</Menu.Item>
                         {/* <Menu.Item key="3">nav 3</Menu.Item> */}
 
                     </Menu>
                     <Content>
-                        {this.state.student && this.state.value.category === "Company"  ?
+                        {this.state.student && this.state.value.category === "Company" ?
                             // console.log(true)
                             <StudentsData />
                             : null}
-                        {this.state.company && this.state.value.category === "student"?
+                        {this.state.company && this.state.value.category === "student" ?
                             <CompanyJobs />
                             : null}
+                        {this.state.PostingJobs ?
+                            <PostingJobs edit = {this.edit} />
+                            : null}
+                            {this.state.PostingData ?
+                            <PostingData edit = {this.edit2} />
+                            : null}
                         {this.state.form ?
-                            <PostingForm category = {this.state.value ? this.state.value.category : null} />
+                            <PostingForm 
+                            data = {this.state.data ? this.state.data : ""} 
+                            index = {this.state.data ? this.state.index : ""} 
+                            edit = {this.state.edit} 
+                            edit2 = {this.state.edit2}
+                            category={this.state.value ? this.state.value.category : null} />
                             : null}
                     </Content>
                 </Header>
                 <Drawer
-                
+
                     width={640}
                     placement="right"
                     closable={false}
