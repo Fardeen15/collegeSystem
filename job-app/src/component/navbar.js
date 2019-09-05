@@ -10,6 +10,8 @@ import { withRouter } from 'react-router-dom'
 import { Drawer, List, Avatar, Divider, Col, Row } from 'antd';
 import PostingJobs from './yourJobs';
 import PostingData from './yourdata';
+import YourEmployes from './yourEmployes';
+import AppliedJobs from './yourAppliedJobs';
 const pStyle = {
     fontSize: 16,
     color: 'rgba(0,0,0,0.85)',
@@ -49,12 +51,28 @@ class Navbar extends React.Component {
             student: true,
             company: false,
             PostingJobs: false,
-            edit : false,
+            edit: false,
             form: false,
-            edit2 : false,
-            PostingData : false, 
+            edit2: false,
+            employ: false,
+            apply: false,
+            PostingData: false,
             data: []
         }
+    }
+    editfalse = () => {
+        this.setState({
+            edit: false,
+            postingJobs: true,
+            form: false
+        })
+    }
+    edit2false = () => {
+        this.setState({
+            edit2: false,
+            PostingData: true,
+            form: false
+        })
     }
     navcheck = (value) => {
         if (value === "student") {
@@ -63,40 +81,71 @@ class Navbar extends React.Component {
                 student: true,
                 company: false,
                 PostingJobs: false,
-                PostingData : false,
-                form: false
+                PostingData: false,
+                form: false,
+                employ: false,
+                apply: false
+
             })
         } else if (value === "company") {
             this.setState({
                 student: false,
                 company: true,
                 PostingJobs: false,
-                PostingData : false,
-                form: false
+                PostingData: false,
+                form: false,
+                employ: false,
+                apply: false
             })
         } else if (value === "Jobs") {
             this.setState({
                 student: false,
                 company: false,
                 PostingJobs: true,
-                PostingData : false,
-                form: false
+                PostingData: false,
+                form: false,
+                employ: false,
+                apply: false
             })
         } else if (value === "data") {
             this.setState({
                 student: false,
                 company: false,
                 PostingJobs: false,
-                PostingData : true,
-                form: false
+                PostingData: true,
+                form: false,
+                employ: false,
+                apply: false
             })
         } else if (value === "form") {
             this.setState({
                 student: false,
                 company: false,
                 PostingJobs: false,
-                PostingData : false,
-                form: true
+                PostingData: false,
+                form: true,
+                employ: false,
+                apply: false
+            })
+        } else if (value === "Employ") {
+            this.setState({
+                student: false,
+                company: false,
+                PostingJobs: false,
+                PostingData: false,
+                form: false,
+                employ: true,
+                apply: false
+            })
+        } else if (value === "Apply") {
+            this.setState({
+                student: false,
+                company: false,
+                PostingJobs: false,
+                PostingData: false,
+                form: false,
+                employ: false,
+                apply: true
             })
         }
     }
@@ -104,7 +153,7 @@ class Navbar extends React.Component {
         this.setState({
             data: value,
             index: index,
-            edit2 : true,
+            edit2: true,
             student: false,
             company: false,
             PostingData: false,
@@ -115,7 +164,7 @@ class Navbar extends React.Component {
         this.setState({
             data: value,
             index: index,
-            edit : true,
+            edit: true,
             student: false,
             company: false,
             PostingJobs: false,
@@ -140,7 +189,8 @@ class Navbar extends React.Component {
                     var data = snap.val()
                     // console.log(data)
                     this.setState({
-                        value: data
+                        value: data,
+                        // useruid : user.uid
                     })
                 })
             }
@@ -174,6 +224,11 @@ class Navbar extends React.Component {
                             :
                             <Menu.Item key="2a" onClick={() => { this.navcheck('Jobs') }}>Your posted jobs</Menu.Item>
                         }
+                        {this.state.value.category === "Company" ?
+                            <Menu.Item onClick={() => { this.navcheck('Employ') }} key="5">Your Employs</Menu.Item>
+                            :
+                            <Menu.Item onClick={() => { this.navcheck('Apply') }} key="6">Applied jobs</Menu.Item>
+                        }
                         <Menu.Item onClick={() => { this.navcheck('form') }} key="3">Posting Form</Menu.Item>
                         {/* <Menu.Item key="3">nav 3</Menu.Item> */}
 
@@ -181,24 +236,32 @@ class Navbar extends React.Component {
                     <Content>
                         {this.state.student && this.state.value.category === "Company" ?
                             // console.log(true)
-                            <StudentsData />
+                            <StudentsData val={this.state.value} />
                             : null}
                         {this.state.company && this.state.value.category === "student" ?
-                            <CompanyJobs />
+                            <CompanyJobs val={this.state.value} />
                             : null}
                         {this.state.PostingJobs ?
-                            <PostingJobs edit = {this.edit} />
+                            <PostingJobs edit={this.edit} />
                             : null}
-                            {this.state.PostingData ?
-                            <PostingData edit = {this.edit2} />
+                        {this.state.PostingData ?
+                            <PostingData edit={this.edit2} />
+                            : null}
+                        {this.state.employ ?
+                            <YourEmployes />
+                            : null}
+                        {this.state.apply ?
+                            <AppliedJobs />
                             : null}
                         {this.state.form ?
-                            <PostingForm 
-                            data = {this.state.data ? this.state.data : ""} 
-                            index = {this.state.data ? this.state.index : ""} 
-                            edit = {this.state.edit} 
-                            edit2 = {this.state.edit2}
-                            category={this.state.value ? this.state.value.category : null} />
+                            <PostingForm
+                                data={this.state.data ? this.state.data : ""}
+                                index={this.state.data ? this.state.index : ""}
+                                edit={this.state.edit}
+                                empty2={this.edit2false}
+                                empty={this.editfalse}
+                                edit2={this.state.edit2}
+                                category={this.state.value ? this.state.value.category : null} />
                             : null}
                     </Content>
                 </Header>
@@ -247,32 +310,6 @@ class Navbar extends React.Component {
                         </Col>
                     </Row>
                     <Divider />
-                    <p style={pStyle}>Company</p>
-                    <Row>
-                        <Col span={12}>
-                            <DescriptionItem title="Position" content="Programmer" />
-                        </Col>
-                        <Col span={12}>
-                            <DescriptionItem title="Responsibilities" content="Coding" />
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col span={12}>
-                            <DescriptionItem title="Department" content="AFX" />
-                        </Col>
-                        <Col span={12}>
-                            <DescriptionItem title="Supervisor" content={<a>Lin</a>} />
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col span={24}>
-                            <DescriptionItem
-                                title="Skills"
-                                content="C / C + +, data structures, software engineering, operating systems, computer networks, databases, compiler theory, computer architecture, Microcomputer Principle and Interface Technology, Computer English, Java, ASP, etc."
-                            />
-                        </Col>
-                    </Row>
-                    <Divider />
                     <p style={pStyle}>Contacts</p>
                     <Row>
                         <Col span={12}>
@@ -280,18 +317,6 @@ class Navbar extends React.Component {
                         </Col>
                         <Col span={12}>
                             <DescriptionItem title="Phone Number" content={this.state.value.number} />
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col span={24}>
-                            <DescriptionItem
-                                title="Github"
-                                content={
-                                    <a href="http://github.com/ant-design/ant-design/">
-                                        github.com/ant-design/ant-design/
-                    </a>
-                                }
-                            />
                         </Col>
                     </Row>
                 </Drawer>

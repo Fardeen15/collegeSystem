@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { auth, db } from '../firabaseConfig';
-import { Card, Row, Col, Button } from 'antd'
+import { Card, Row, Col, Button, Popconfirm, message } from 'antd'
 class PostingData extends Component {
     constructor(props) {
         super(props)
@@ -10,25 +10,30 @@ class PostingData extends Component {
         }
     }
     data = () => {
-        this.setState({
-            data: [],
-            keys: []
-        })
         auth.onAuthStateChanged((user) => {
             if (user) {
+                this.setState({
+                    data: [],
+                    keys: []
+                })
                 db.ref().child('student').child(user.uid).child('data').on('value', (snap) => {
-                    var data = Object.values(snap.val())
-                    var key = Object.keys(snap.val())
-                    var stt = this.state.data
-                    var keys = this.state.keys
-                    for (var i = 0; i < data.length; i++) {
-                        stt.push(data[i])
-                        keys.push(key[i])
+                    if (snap.val()) {
+
+                        var data = Object.values(snap.val())
+                        var key = Object.keys(snap.val())
+                        var stt = this.state.data
+                        var keys = this.state.keys
+                        for (var i = 0; i < data.length; i++) {
+                            stt.push(data[i])
+                            keys.push(key[i])
+                        }
+                        this.setState({
+                            data: stt,
+                            keys
+                        })
+                    } else {
+                        message.warning('no data yet')
                     }
-                    this.setState({
-                        data: stt,
-                        keys
-                    })
                 })
             }
         })
@@ -36,7 +41,7 @@ class PostingData extends Component {
     delete = (index) => {
         var keys = this.state.keys
         // var stt = this.state.data
-
+        console.log("run")
         auth.onAuthStateChanged((user) => {
             if (user) {
                 db.ref().child('student').child(user.uid).child('data').child(keys[index]).remove().then(() => {
@@ -52,27 +57,37 @@ class PostingData extends Component {
             }
         })
     }
+    del = (index) => {
+        this.delete(index)
+    }
     componentWillMount() {
         this.data()
     }
     render() {
-        console.log(this.state.data)
         return (
             // <div>
             <Row gutter={48} style={{ overflowY: "scroll", height: "90vh" }}>
                 {this.state.data.length ?
                     this.state.data.map((value, index) => {
                         return (
-                            <Col  xs={2} sm={4} md={6} lg={8} xl={10} key={index} span="12">
+                            <Col key={index} span={12}>
                                 <div style={{ background: '#ECECEC', padding: '30px', marginTop: "10px" }}>
-                                    <Card title={<span>
+                                    <Card title={<div>
                                         <Button onClick={() => {
                                             this.props.edit(value, this.state.keys[index])
-                                        }}>Edit</Button>
-                                        <Button type="danger" onClick={() => {
-                                            this.delete(index)
-                                        }}>delete</Button>
-                                    </span>} bordered={false} style={{ width: "90%" }}>
+                                        }}>Edit</Button> <Popconfirm
+                                            title="Are you sure delete this data?"
+                                            onConfirm={() => {
+                                                this.del(index)
+                                                console.log(true)
+                                            }}
+                                            // onCancel={cancel}
+                                            okText="Yes"
+                                            cancelText="No"
+                                        >
+                                            <Button type="danger">delete</Button>
+                                        </Popconfirm>
+                                    </div>} bordered={false} style={{ width: "90%" }}>
                                         <div>
                                             <p><b>First Name</b> : {value.firstName}</p>
                                             <p><b>Last Name</b> : {value.lastname}</p>

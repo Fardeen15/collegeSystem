@@ -82,7 +82,7 @@ class StudentsData extends React.Component {
     }
     info = (value) => {
         console.log(value)
-        Modal.info({
+        Modal.confirm({
             title: <h1>student data</h1>,
             content: (
                 <div>
@@ -98,7 +98,20 @@ class StudentsData extends React.Component {
 
                 </div>
             ),
-            onOk() { },
+            okText: "Haier",
+            cancelText: 'cancel',
+            onOk() {
+                var newDate = new Date()
+                var submitDate = `${newDate.getFullYear()}${newDate.getMonth() + 1}${newDate.getDate()}${newDate.getHours()}${newDate.getMinutes()}${newDate.getMilliseconds()}`
+
+                auth.onAuthStateChanged((user) => {
+                    if (user) {
+                        db.ref().child('Company').child(user.uid).child('Your Employes').child(submitDate).set(value)
+
+                    }
+                })
+            },
+            onCancel() { },
         });
     }
 

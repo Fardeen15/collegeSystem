@@ -1,6 +1,6 @@
 import React from 'react'
 import { auth, db } from '../firabaseConfig';
-import { Comment, Avatar, Tooltip,BackTop, Button , Modal } from 'antd';
+import { Comment, Avatar, Tooltip, BackTop, Button, Modal, message } from 'antd';
 
 class CompanyJobs extends React.Component {
     constructor() {
@@ -41,25 +41,73 @@ class CompanyJobs extends React.Component {
         })
     }
     info = (value) => {
-        console.log(value)
-        Modal.info({
+        var prop = this.props.val
+        Modal.confirm({
             title: ' Job information',
             content: (
+
                 <div>
                     <h1>Ali</h1>
-                    <h3>Company information</h3><hr/>
-                   <p><b>Company Name</b> : {value.companyname}</p>
-                   <p><b>Company Email</b> : {value.companyemail}</p>
-                   <p><b>Company website</b> : {value.companywebsite}</p>
-                   <h3>Job requirement</h3><hr/>
-                   <p><b>job Categroy</b> : {value.jobCategroy}</p>
-                   <p><b>Timing</b> : {value.jobType}</p>
-                   <hr/>
-                   Contact us : {value.number}
+                    <h3>Company information</h3><hr />
+                    <p><b>Company Name</b> : {value.companyname}</p>
+                    <p><b>Company Email</b> : {value.companyemail}</p>
+                    <p><b>Company website</b> : {value.companywebsite}</p>
+                    <h3>Job requirement</h3><hr />
+                    <p><b>job Categroy</b> : {value.jobCategroy}</p>
+                    <p><b>Timing</b> : {value.jobType}</p>
+                    <hr />
+                    Contact us : {value.number}
                 </div>
-
             ),
-            onOk() { },
+            okText: "apply",
+            cancelText: 'cancel',
+            onOk() {
+                var applied = false;
+                auth.onAuthStateChanged((user) => {
+                    if (user) {
+                        db.ref().child('student').child(user.uid).on('value', (snap) => {
+                            var data = Object.keys(snap.val());
+                            for (var i = 0; i < data.length; i++) {
+                                if (data[i] === 'AppliedJobs') {
+                                    applied = true
+                                } else {
+
+                                    if (applied === true) {
+                                        message.error('you are already job applied')
+
+                                    } else {
+
+                                        var newDate = new Date()
+                                        var submitDate = `${newDate.getFullYear()}${newDate.getMonth() + 1}${newDate.getDate()}${newDate.getHours()}${newDate.getMinutes()}${newDate.getMilliseconds()}`
+                                        var obj = {
+                                            category: prop.category,
+                                            email: prop.email,
+                                            name: prop.name,
+                                            number: prop.number,
+                                            applyJOb: 'Applied'
+
+                                        }
+                                        auth.onAuthStateChanged((user) => {
+                                            if (user) {
+                                                db.ref().child('student').child(user.uid).child('personal Information').update(obj)
+                                                db.ref().child('user').child(user.uid).child('personal Information').update(obj)
+                                                db.ref().child('student').child(user.uid).child('AppliedJobs').child(submitDate).set(value)
+
+                                            }
+                                        })
+                                    }
+                                }
+                            }
+                        })
+
+                    }
+
+                })
+            },
+            onCancel() {
+                console.log(false)
+            }
+
         });
     }
 
@@ -71,9 +119,9 @@ class CompanyJobs extends React.Component {
                     this.state.data.map((value, index) => {
                         return (
                             <Comment
-                            
+
                                 key={index}
-                                actions={<Button onClick = {this.info}>Show Detail</Button>}
+                                actions={<Button onClick={this.info}>Show Detail</Button>}
                                 author={value.name}
                                 avatar={
                                     <Avatar
@@ -82,8 +130,8 @@ class CompanyJobs extends React.Component {
                                 }
                                 content={
                                     <div>
-                                    <p>{value.Description}  <Button type="danger" onClick = {()=>this.info(value)}>Show Detail</Button></p>
-                                </div>
+                                        <p>{value.Description}  <Button type="danger" onClick={() => this.info(value)}>Show Detail</Button></p>
+                                    </div>
                                 }
                                 datetime={
                                     <Tooltip >
@@ -97,12 +145,12 @@ class CompanyJobs extends React.Component {
                     : <p>
                         no job yet
                     </p>}
-                    
-                    <BackTop>
-                        <div className="ant-back-top-inner">UP</div>
-                    </BackTop>
-                    
-                    
+
+                <BackTop>
+                    <div className="ant-back-top-inner">UP</div>
+                </BackTop>
+
+
             </div>
         )
     }

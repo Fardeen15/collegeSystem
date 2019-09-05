@@ -115,7 +115,7 @@ class PostingForm extends React.Component {
                 number: ev.target.value
             })
         } else if (val === "birthdate") {
-            console.log()
+            console.log( `${ev._d.getFullYear()}/${ev._d.getMonth() + 1}/${ev._d.getDate()}`)
             this.setState({
                 birthday: `${ev._d.getFullYear()}/${ev._d.getMonth() + 1}/${ev._d.getDate()}`
             })
@@ -158,20 +158,24 @@ class PostingForm extends React.Component {
                             date: `${newDate.getFullYear()}-${newDate.getMonth() + 1}-${newDate.getDate()}`,
                             name: this.state.value.name
                         }
-                        console.log(this.state.value.name)
-                        db.ref().child('Company').child(user.uid).child('posts').child(submitDate).set(obj).then(() => {
-                            message.success('your data is send')
-                            this.setState({
-                                job: "",
-                                CompanyName: "",
-                                CompanyEmail: "",
-                                CompanyWebsite: "",
-                                jobType: "",
-                                jobCategroy: "",
-                                number: "",
-                                Description: "",
+                        if (this.state.number.length === 11) {
+
+                            db.ref().child('Company').child(user.uid).child('posts').child(submitDate).set(obj).then(() => {
+                                message.success('your data is send')
+                                this.setState({
+                                    job: "",
+                                    CompanyName: "",
+                                    CompanyEmail: "",
+                                    CompanyWebsite: "",
+                                    jobType: "",
+                                    jobCategroy: "",
+                                    number: "",
+                                    Description: "",
+                                })
                             })
-                        })
+                        } else {
+                            message.error('please check number limit')
+                        }
                     })
                 })
             }
@@ -236,22 +240,27 @@ class PostingForm extends React.Component {
                             date: `${newDate.getFullYear()}-${newDate.getMonth() + 1}-${newDate.getDate()}`,
                             name: this.state.value.name
                         }
-                        console.log(this.state.value.name)
-                        db.ref().child('student').child(user.uid).child('data').child(submitDate).set(obj).then(() => {
-                            message.success('your data is send')
-                            this.setState({
-                                job: "",
-                                firstname: "",
-                                lastname: "",
-                                qualification: "",
-                                skils: "",
-                                email: "",
-                                number: "",
-                                Address: "",
-                                City: "",
-                                birthdate: "",
+                        if (this.state.number.length === 11) {
+                            console.log(this.state.birthdate)
+                            db.ref().child('student').child(user.uid).child('data').child(submitDate).set(obj).then(() => {
+                                message.success('your data is send')
+                                this.setState({
+                                    job: "",
+                                    firstname: "",
+                                    lastname: "",
+                                    qualification: "",
+                                    skils: "",
+                                    email: "",
+                                    number: "",
+                                    Address: "",
+                                    City: "",
+                                    birthdate: "",
+                                })
                             })
-                        })
+                        } else {
+                            message.error('please check number limit')
+                        }
+
                     })
                 })
             }
@@ -368,16 +377,24 @@ class PostingForm extends React.Component {
                     <h1>positng form</h1>
                 }
                 {this.props.category === "Company" ?
-                    <Form {...formItemLayout} onSubmit={this.submit}>
+                    <Form {...formItemLayout} onSubmit={(ev) => {
+                        ev.preventDefault()
+                        if (this.props.edit) {
+                            this.update()
+                            this.props.empty()
+                        } else {
+                            this.post()
+                        }
+                    }}>
                         <h1>Comapny Information</h1><hr />
                         <Form.Item label="Company Name">
-                            <Input onChange={(ev) => { this.change(ev, "companyname") }} value={this.state.CompanyName} />
+                            <Input onChange={(ev) => { this.change(ev, "companyname") }} required value={this.state.CompanyName} />
                         </Form.Item>
                         <Form.Item label="Company Website">
-                            <Input onChange={(ev) => { this.change(ev, "companywebsite") }} value={this.state.CompanyWebsite} />
+                            <Input onChange={(ev) => { this.change(ev, "companywebsite") }} required value={this.state.CompanyWebsite} />
                         </Form.Item>
                         <Form.Item label="Company Email">
-                            <Input onChange={(ev) => { this.change(ev, "companyemail") }} value={this.state.CompanyEmail} />
+                            <Input onChange={(ev) => { this.change(ev, "companyemail") }} required value={this.state.CompanyEmail} />
                         </Form.Item>
                         <h1>Job Information</h1><hr />
                         <Form.Item label="job type">
@@ -396,68 +413,92 @@ class PostingForm extends React.Component {
                             </Select>
                         </Form.Item>
                         <Form.Item label="Contact Number">
-                            <Input onChange={(ev) => { this.change(ev, "number") }} value={this.state.number} />
+                            <Input onChange={(ev) => { this.change(ev, "number") }} required value={this.state.number} />
                         </Form.Item>
                         <Form.Item label="Description">
-                            <TextArea onChange={(ev) => { this.change(ev, "description") }} value={this.state.Description} placeholder="Autosize height based on content lines" autosize />
+                            <TextArea onChange={(ev) => { this.change(ev, "description") }} required value={this.state.Description} placeholder="Autosize height based on content lines" autosize />
                         </Form.Item>
                         {this.props.edit ?
                             <Form.Item style={{ textAlign: "right" }}>
-                                <Button type="primary" onClick={this.update} style={{ width: "20%" }} className="login-form-button" htmlType="submit">
+                                <Button type="primary" style={{ width: "20%" }} className="login-form-button" htmlType="submit">
                                     update
+                                </Button>
+                                <Button type="primary" onClick={() => {
+                                    // this.update()
+                                    this.props.empty()
+                                }} style={{ width: "20%" }} className="login-form-button" htmlType="submit">
+                                    cancel
                                 </Button>
                             </Form.Item>
                             :
                             <Form.Item style={{ textAlign: "right" }}>
-                                <Button type="primary" onClick={this.post} style={{ width: "20%" }} className="login-form-button" htmlType="submit">
+                                <Button type="primary" style={{ width: "20%" }} className="login-form-button" htmlType="submit">
                                     post
                                 </Button>
                             </Form.Item>}
                     </Form>
                     :
-                    <Form {...formItemLayout} >
+                    <Form {...formItemLayout} onSubmit={(ev) => {
+                        ev.preventDefault()
+
+                        if (this.props.edit2) {
+                            this.update2()
+                            this.props.empty2()
+                        } else {
+                            this.post2()
+                        }
+                    }}>
                         {this.props.edit2 ?
                             <h1>Edit Form</h1>
                             :
                             <h1>Student Information</h1>
                         }
                         <Form.Item label="first Name">
-                            <Input onChange={(ev) => { this.change2(ev, "firstname") }} value={this.state.firstname} />
+                            <Input onChange={(ev) => { this.change2(ev, "firstname") }} required value={this.state.firstname} />
                         </Form.Item>
                         <Form.Item label="last Name">
-                            <Input onChange={(ev) => { this.change2(ev, "lastname") }} value={this.state.lastname} />
+                            <Input onChange={(ev) => { this.change2(ev, "lastname") }} required value={this.state.lastname} />
                         </Form.Item>
                         <Form.Item label="Qualification">
-                            <Input onChange={(ev) => { this.change2(ev, "qualification") }} value={this.state.qualification} />
+                            <Input onChange={(ev) => { this.change2(ev, "qualification") }} required value={this.state.qualification} />
                         </Form.Item>
                         <Form.Item label="Birth date">
-                            <DatePicker onChange={(ev) => { this.change2(ev, "birthdate") }} format={dateFormat} />
+                            <DatePicker onChange={(ev) => { this.change2(ev, "birthdate") }} required format={dateFormat} />
                         </Form.Item>
                         <Form.Item label="Address">
-                            <TextArea onChange={(ev) => { this.change2(ev, "Address") }} value={this.state.Address} autosize />
+                            <TextArea onChange={(ev) => { this.change2(ev, "Address") }} required value={this.state.Address} autosize />
                         </Form.Item>
                         <Form.Item label="City">
-                            <TextArea onChange={(ev) => { this.change2(ev, "City") }} value={this.state.City} autosize />
+                            <TextArea onChange={(ev) => { this.change2(ev, "City") }} required value={this.state.City} autosize />
                         </Form.Item>
                         <Form.Item label="skils">
-                            <TextArea onChange={(ev) => { this.change2(ev, "skils") }} value={this.state.skils} autosize />
+                            <TextArea onChange={(ev) => { this.change2(ev, "skils") }} required value={this.state.skils} autosize />
                         </Form.Item>
 
                         <Form.Item label="Contact Number">
-                            <Input onChange={(ev) => { this.change2(ev, "number") }} value={this.state.number} />
+                            <Input onChange={(ev) => { this.change2(ev, "number") }} required value={this.state.number} />
                         </Form.Item>
                         <Form.Item label="Email">
-                            <Input onChange={(ev) => { this.change2(ev, "email") }} value={this.state.email} />
+                            <Input onChange={(ev) => { this.change2(ev, "email") }} required value={this.state.email} />
                         </Form.Item>
                         {this.props.edit2 ?
-                            <Form.Item style={{ textAlign: "right" }}>
-                                <Button type="primary" onClick={this.update2} style={{ width: "20%" }} className="login-form-button" htmlType="submit">
+                            <Form.Item>
+                                <Button type="primary" onClick={() => {
+                                    // this.update2()
+                                    // this.props.empty2()
+                                }} style={{ width: "20%" }} className="login-form-button" htmlType="submit">
                                     update
+                                </Button>
+                                <Button type="primary" onClick={() => {
+                                    // this.update2()
+                                    this.props.empty2()
+                                }} style={{ width: "20%" }} className="login-form-button" htmlType="submit">
+                                    cancel
                                 </Button>
                             </Form.Item>
                             :
                             <Form.Item style={{ textAlign: "right" }}>
-                                <Button type="primary" onClick={this.post2} style={{ width: "20%" }} className="login-form-button" htmlType="submit">
+                                <Button type="primary" style={{ width: "20%" }} className="login-form-button" htmlType="submit">
                                     post
                             </Button>
                             </Form.Item>}

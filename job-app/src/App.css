@@ -1,8 +1,10 @@
 /* .App {
   text-align: center;
 } */
-
- .login-form {
+body{
+  background: #6d94ca; background: -moz-linear-gradient(45deg,  #6d94ca 0%,#a8c1ef 100%); background: -webkit-linear-gradient(45deg,  #6d94ca 0%,#a8c1ef 100%); background: linear-gradient(45deg,  #6d94ca 0%,#a8c1ef 100%); 
+}
+  .login-form {
   max-width: 300px;
   max-height: 40px
 }

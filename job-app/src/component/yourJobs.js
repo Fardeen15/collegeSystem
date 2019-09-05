@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { auth, db } from '../firabaseConfig';
-import { Card, Row, Col, Button } from 'antd'
+import { Card, Row, Col, Button, Popconfirm } from 'antd'
 class PostingJobs extends Component {
     constructor() {
         super()
@@ -63,15 +63,19 @@ class PostingJobs extends Component {
                 {this.state.data.length ?
                     this.state.data.map((value, index) => {
                         return (
-                            <Col key={index} span="12">
+                            <Col key={index} span={12} >
                                 <div style={{ background: '#ECECEC', padding: '30px', marginTop: "10px" }}>
                                     <Card title={<span>
                                         <Button onClick={() => {
-                                        this.props.edit(value, this.state.keys[index])
-                                    }}>Edit</Button> 
-                                    <Button type="danger" onClick={() => {
-                                        this.delete(index)
-                                    }}>delete</Button>
+                                            this.props.edit(value, this.state.keys[index])
+                                        }}>Edit</Button> <Popconfirm
+                                            title="Are you sure delete this job?"
+                                            onConfirm={() => { this.delete(index) }}
+                                            okText="Yes"
+                                            cancelText="No"
+                                        >
+                                            <Button type="danger">delete</Button>
+                                        </Popconfirm>
                                     </span>} bordered={false} style={{ width: "90%" }}>
                                         <div>
                                             <h1>Ali</h1>
@@ -89,10 +93,10 @@ class PostingJobs extends Component {
                                 </div>
                             </Col>
 
-                        )
+            )
 
-                    })
-                    : null}
+        })
+        : null}
             </Row>
             // </div>
         )

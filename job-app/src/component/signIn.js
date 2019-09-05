@@ -16,6 +16,13 @@ class SignIn extends React.Component {
     
         }
       }
+      componentWillMount(){
+        auth.onAuthStateChanged((user)=>{
+          if(user){
+            this.props.history.push('/darwer')
+          }
+        })
+      }
       signIn = (event) => {
         event.preventDefault()
         console.log(this.props)
@@ -100,6 +107,7 @@ class SignIn extends React.Component {
 
             }}>
                 <Form className="login-form" onSubmit={this.signIn}>
+                  <h2>Collage Recuipment LogIn</h2>
                     <Form.Item label="E-mail">
                         <Input
                             value={this.state.email}
@@ -112,16 +120,7 @@ class SignIn extends React.Component {
                             prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
                             onChange={(ev) => this.data(ev, "pass")} required type="password" />
                     </Form.Item>
-                    <Form.Item label="select category">
-                        <Select onChange={(ev) => this.data(ev, "categry")} required defaultValue={this.state.category}>
-                            <Option value="student">student</Option>
-                            <Option value="Company">Company</Option>
-                        </Select>
-                    </Form.Item>
                     <Form.Item>
-                        <a className="login-form-forgot" href="">
-                            Forgot password
-                        </a>
                         <Button type="primary" htmlType="submit" className="login-form-button">
                             Log in
                         </Button>
